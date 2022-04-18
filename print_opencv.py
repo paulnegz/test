@@ -14,7 +14,7 @@ import numpy as np
 # make sure STOP, START & PIC send once in 3.3 seconds
 # new measurements for graph with hips 
 
-video=cv2.VideoCapture(0)
+video=cv2.VideoCapture(1)
 video.set(3, 1280)
 video.set(4, 720)
 

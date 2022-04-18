@@ -5,7 +5,7 @@ import cv2
 # from cvzone.HandTrackingModule import HandDetector
 # import cvzone
 
-video=cv2.VideoCapture(1)
+video=cv2.VideoCapture(0)
 video.set(3, 1280)
 video.set(4, 720)
 

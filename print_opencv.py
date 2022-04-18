@@ -6,8 +6,6 @@ import cv2
 # import cvzone
 
 video=cv2.VideoCapture(0)
-video.set(3, 1280)
-video.set(4, 720)
 
 # detector_hand = HandDetector(detectionCon=0.8, maxHands=1)
 # detector_pose = PoseDetector(detectionCon=0.8)

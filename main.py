@@ -87,7 +87,7 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     for label, keypoint in pose.keypoints.items():
         if keypoint.score < threshold: continue
         if label.name in landmarks: 
-            # print('  %-20s x=%-4d y=%-4d score=%.1f' %(label.name, keypoint.point[0], keypoint.point[1], keypoint.score))
+            print('  %-20s x=%-4d y=%-4d score=%.1f' %(label.name, keypoint.point[0], keypoint.point[1], keypoint.score))
             landmarks_dictionary.update({label.name: (keypoint.point[0],keypoint.point[1])})
             
         # Offset and scale to source coordinate space.
@@ -106,16 +106,16 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     if not(landmarks[0] in landmarks_dictionary and landmarks[1] in landmarks_dictionary): return
     z_position = getZ_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])
     x_position = getX_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])   
-    print(f"user z position: {z_position} and user x posoition: {x_position}")    
+    # print(f"user z position: {z_position} and user x posoition: {x_position}")    
 
     if (landmarks[2] in landmarks_dictionary and landmarks[4] in landmarks_dictionary):
         (left_wrist_x, left_wrist_y) = landmarks_dictionary[landmarks[2]]
         (left_shoulder_x, left_shoulder_y) = landmarks_dictionary[landmarks[4]]
-        if left_wrist_y> left_shoulder_y: print(f"toogle") 
+        # if left_wrist_y> left_shoulder_y: print(f"toogle") 
     elif (landmarks[3] in landmarks_dictionary and landmarks[5] in landmarks_dictionary):
         (right_wrist_x, right_wrist_y) = landmarks_dictionary[landmarks[3]]
         (right_shoulder_x, right_shoulder_y) = landmarks_dictionary[landmarks[5]]
-        if right_wrist_y> right_shoulder_y: print(f"toogle")
+        # if right_wrist_y> right_shoulder_y: print(f"toogle")
 
 def avg_fps_counter(window_size):
     window = collections.deque(maxlen=window_size)

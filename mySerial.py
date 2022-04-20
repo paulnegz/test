@@ -5,8 +5,6 @@
 #         arduino_serial.write(bytes(value, 'utf-8'))
 #         arduino_serial.close()
 
-from periphery import Serial
-
 # serial using USB
 uart1 = Serial("/dev/ttyS1", 115200)
 uart1.flush()

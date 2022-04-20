@@ -62,11 +62,12 @@ def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
     distance = getEuclideanDistance(x1,x2,y1,y2)
     A, B, C = coff #Ax^2+Bx+C
     z_cordinates = A*distance**2 + B*distance + C
-    return z_cordinates
+    # return z_cordinates
+    return distance
 
 def getX_Cordinate(leftHipCordinates, rightHipCordinates):
-    (x1, y1) = leftHipCordinates
-    (x2, y2) = rightHipCordinates
+    (x1, _) = leftHipCordinates
+    (x2, _) = rightHipCordinates
     x_cordinates = (x1+x2)/2 
     return x_cordinates
 
@@ -109,12 +110,12 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     print(f"user z position: {z_position} and user x posoition: {x_position}")    
 
     if (landmarks[2] in landmarks_dictionary and landmarks[4] in landmarks_dictionary):
-        (left_wrist_x, left_wrist_y) = landmarks_dictionary[landmarks[2]]
-        (left_shoulder_x, left_shoulder_y) = landmarks_dictionary[landmarks[4]]
+        (_, left_wrist_y) = landmarks_dictionary[landmarks[2]]
+        (_, left_shoulder_y) = landmarks_dictionary[landmarks[4]]
         if left_wrist_y < left_shoulder_y + 20: print(f"toogle") 
     elif (landmarks[3] in landmarks_dictionary and landmarks[5] in landmarks_dictionary):
-        (right_wrist_x, right_wrist_y) = landmarks_dictionary[landmarks[3]]
-        (right_shoulder_x, right_shoulder_y) = landmarks_dictionary[landmarks[5]]
+        (_, right_wrist_y) = landmarks_dictionary[landmarks[3]]
+        (_, right_shoulder_y) = landmarks_dictionary[landmarks[5]]
         if right_wrist_y < right_shoulder_y+ 20: print(f"toogle")
 
 def avg_fps_counter(window_size):

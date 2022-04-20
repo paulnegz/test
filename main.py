@@ -111,11 +111,11 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     if (landmarks[2] in landmarks_dictionary and landmarks[4] in landmarks_dictionary):
         (left_wrist_x, left_wrist_y) = landmarks_dictionary[landmarks[2]]
         (left_shoulder_x, left_shoulder_y) = landmarks_dictionary[landmarks[4]]
-        if left_wrist_y < left_shoulder_y: print(f"toogle") 
+        if left_wrist_y < left_shoulder_y + 20: print(f"toogle") 
     elif (landmarks[3] in landmarks_dictionary and landmarks[5] in landmarks_dictionary):
         (right_wrist_x, right_wrist_y) = landmarks_dictionary[landmarks[3]]
         (right_shoulder_x, right_shoulder_y) = landmarks_dictionary[landmarks[5]]
-        if right_wrist_y < right_shoulder_y: print(f"toogle")
+        if right_wrist_y < right_shoulder_y+ 20: print(f"toogle")
 
 def avg_fps_counter(window_size):
     window = collections.deque(maxlen=window_size)

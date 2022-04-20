@@ -81,12 +81,12 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     box_x, box_y, box_w, box_h = inference_box
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}
-    landamrks = ['LEFT_HIP', 'RIGHT_HIP', 'LEFT_WRIST', 'RIGHT_WRIST', 'LEFT_SHOULDER', 'RIGHT_SHOULDER']
+    landmarks = ['LEFT_HIP', 'RIGHT_HIP', 'LEFT_WRIST', 'RIGHT_WRIST', 'LEFT_SHOULDER', 'RIGHT_SHOULDER']
     landmarks_dictionary = {}
 
     for label, keypoint in pose.keypoints.items():
         if keypoint.score < threshold: continue
-        if label.name in landamrks: 
+        if label.name in landmarks: 
             # print('  %-20s x=%-4d y=%-4d score=%.1f' %(label.name, keypoint.point[0], keypoint.point[1], keypoint.score))
             landmarks_dictionary.update({label.name: (keypoint.point[0],keypoint.point[1])})
             
@@ -103,7 +103,7 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
         bx, by = xys[b]
         dwg.add(dwg.line(start=(ax, ay), end=(bx, by), stroke=color, stroke_width=2))
         
-    if landamrks[0] and landamrks[1] in landmarks_dictionary:
+    if landmarks[0] in landmarks_dictionary and landmarks[1] in landmarks_dictionary:
     #     z_position = getZ_Cordinate(landamrks_dictionary[landamrks[0]],landamrks_dictionary[landamrks[1]])
     #     x_position = getX_Cordinate(landamrks_dictionary[landamrks[0]],landamrks_dictionary[landamrks[1]])   
     #     print(f"user z position: {z_position} and user x posoition: {x_position}")    

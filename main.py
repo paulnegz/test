@@ -108,8 +108,8 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     #     x_position = getX_Cordinate(landamrks_dictionary[landamrks[0]],landamrks_dictionary[landamrks[1]])   
     #     print(f"user z position: {z_position} and user x posoition: {x_position}")    
     #     landamrks_dictionary = {}
-    for landamrks_item in landamrks_dictionary:
-        print(landamrks_item)
+    for landamrks_item, location in landamrks_dictionary:
+        print(f"{landamrks_item} location: {location}")
 
 
 

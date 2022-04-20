@@ -61,21 +61,11 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}
     
-    # left_shoulder = pose.keypoints.get('left shoulder') or -1
-    # right_shoulder = pose.keypoints.get('right shoulder') or -1
-    # left_wrist = pose.keypoints.get('left wrist') or -1
-    # right_wrist = pose.keypoints.get('right wrist') or -1
-    # left_hip = pose.keypoints.get('left hip') or -1
-    # right_hip = pose.keypoints.get('right hip') or -1
-    # bodyparts = [left_shoulder, right_shoulder, left_wrist, right_wrist, left_hip, right_hip]
-
-    # for index, bodypart in enumerate(bodyparts): 
-    #     if bodypart != -1: print(f"{index} : {bodypart}")
-    
     for label, keypoint in pose.keypoints.items():
         if keypoint.score < threshold: continue
         print('  %-20s x=%-4d y=%-4d score=%.1f' %
             (label.name, keypoint.point[0], keypoint.point[1], keypoint.score))
+        print(type(label.name))
         # Offset and scale to source coordinate space.
         kp_x = int((keypoint.point[0] - box_x) * scale_x)
         kp_y = int((keypoint.point[1] - box_y) * scale_y)

@@ -103,11 +103,13 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
         bx, by = xys[b]
         dwg.add(dwg.line(start=(ax, ay), end=(bx, by), stroke=color, stroke_width=2))
         
-    if landamrks[0] and landamrks[1] in landamrks_dictionary:
-        z_position = getZ_Cordinate(landamrks_dictionary[landamrks[0]],landamrks_dictionary[landamrks[1]])
-        x_position = getX_Cordinate(landamrks_dictionary[landamrks[0]],landamrks_dictionary[landamrks[1]])   
-        print(f"user z position: {z_position} and user x posoition: {x_position}")    
-        landamrks_dictionary = {}
+    # if landamrks[0] and landamrks[1] in landamrks_dictionary:
+    #     z_position = getZ_Cordinate(landamrks_dictionary[landamrks[0]],landamrks_dictionary[landamrks[1]])
+    #     x_position = getX_Cordinate(landamrks_dictionary[landamrks[0]],landamrks_dictionary[landamrks[1]])   
+    #     print(f"user z position: {z_position} and user x posoition: {x_position}")    
+    #     landamrks_dictionary = {}
+    for landamrks_item in landamrks_dictionary:
+        print(landamrks_item)
 
 
 

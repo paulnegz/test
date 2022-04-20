@@ -114,6 +114,7 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
         (_, left_wrist_y) = landmarks_dictionary[landmarks[2]]
         (_, left_shoulder_y) = landmarks_dictionary[landmarks[4]]
         if left_wrist_y < left_shoulder_y + 10: print(f"toogle") 
+        
     elif (landmarks[3] in landmarks_dictionary and landmarks[5] in landmarks_dictionary):
         (_, right_wrist_y) = landmarks_dictionary[landmarks[3]]
         (_, right_shoulder_y) = landmarks_dictionary[landmarks[5]]

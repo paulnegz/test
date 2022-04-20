@@ -104,17 +104,20 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
         ax, ay = xys[a]
         bx, by = xys[b]
         dwg.add(dwg.line(start=(ax, ay), end=(bx, by), stroke=color, stroke_width=2))
+
         
     if not(landmarks[0] in landmarks_dictionary and landmarks[1] in landmarks_dictionary): return
     z_position = getZ_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])
     x_position = getX_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])   
-    print(f"user z position: {z_position} and user x posoition: {x_position}")    
+    payload = f"z: {z_position} ; x: {x_position}"
+    print(payload)
+    mySerial.send(payload)    
 
     if (landmarks[2] in landmarks_dictionary and landmarks[4] in landmarks_dictionary):
         (_, left_wrist_y) = landmarks_dictionary[landmarks[2]]
         (_, left_shoulder_y) = landmarks_dictionary[landmarks[4]]
         if left_wrist_y < left_shoulder_y + 10: print(f"toogle") 
-        
+
     elif (landmarks[3] in landmarks_dictionary and landmarks[5] in landmarks_dictionary):
         (_, right_wrist_y) = landmarks_dictionary[landmarks[3]]
         (_, right_shoulder_y) = landmarks_dictionary[landmarks[5]]

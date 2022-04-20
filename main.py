@@ -17,6 +17,7 @@ import collections
 from functools import partial
 import re
 import time
+import math
 
 import numpy as np
 from PIL import Image
@@ -48,6 +49,26 @@ EDGES = (
     (KeypointType.RIGHT_KNEE, KeypointType.RIGHT_ANKLE),
 )
 
+length = [300, 245, 200, 170, 145, 130, 112, 103, 93, 87, 80, 75, 70, 67, 62, 59, 57] #distance of palm->hips
+z = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100] #depth
+coff = np.polyfit(length, z, 2)
+
+def getEuclideanDistance(x1,x2,y1,y2):
+    return int(math.sqrt((y2-y1)**2+(x2-x1)**2))
+
+def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
+    (x1, y1) = leftHipCordinates
+    (x2, y2) = rightHipCordinates
+    distance = getEuclideanDistance(x1,x2,y1,y2)
+    A, B, C = coff #Ax^2+Bx+C
+    z_cordinates = A*distance**2 + B*distance + C
+    return z_cordinates
+
+def getX_Cordinate(leftHipCordinates, rightHipCordinates):
+    (x1, y1) = leftHipCordinates
+    (x2, y2) = rightHipCordinates
+    x_cordinates = (x1+x2)/2 
+    return x_cordinates
 
 def shadow_text(dwg, x, y, text, font_size=16):
     dwg.add(dwg.text(text, insert=(x + 1, y + 1), fill='black',
@@ -60,15 +81,18 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     box_x, box_y, box_w, box_h = inference_box
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}
-    landamrks = ['LEFT_SHOULDER', 'RIGHT_SHOULDER', 'LEFT_HIP', 'RIGHT_HIP', 'LEFT_WRIST', 'RIGHT_WRIST']
-    
+    landamrks = ['LEFT_HIP', 'RIGHT_HIP', 'LEFT_WRIST', 'RIGHT_WRIST', 'LEFT_SHOULDER', 'RIGHT_SHOULDER']
+    landamrks_dictionary = {}
+
     for label, keypoint in pose.keypoints.items():
         if keypoint.score < threshold: continue
-        if label.name in landamrks: print('  %-20s x=%-4d y=%-4d score=%.1f' %(label.name, keypoint.point[0], keypoint.point[1], keypoint.score))
+        if label.name in landamrks: 
+            # print('  %-20s x=%-4d y=%-4d score=%.1f' %(label.name, keypoint.point[0], keypoint.point[1], keypoint.score))
+            landamrks_dictionary.update({label.name: (keypoint.point[0],keypoint.point[1])})
+            
         # Offset and scale to source coordinate space.
         kp_x = int((keypoint.point[0] - box_x) * scale_x)
         kp_y = int((keypoint.point[1] - box_y) * scale_y)
-
         xys[label] = (kp_x, kp_y)
         dwg.add(dwg.circle(center=(int(kp_x), int(kp_y)), r=5,
                            fill='cyan', fill_opacity=keypoint.score, stroke=color))
@@ -78,6 +102,15 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
         ax, ay = xys[a]
         bx, by = xys[b]
         dwg.add(dwg.line(start=(ax, ay), end=(bx, by), stroke=color, stroke_width=2))
+        
+    if not(landamrks[0] and landamrks[1] in landamrks_dictionary): return
+    z_position = getZ_Cordinate(landamrks_dictionary[landamrks[0]],landamrks_dictionary[landamrks[1]])
+    x_position = getX_Cordinate(landamrks_dictionary[landamrks[0]],landamrks_dictionary[landamrks[1]])   
+    print(f"user z position: {z_position} and user x posoition: {x_position}")
+        
+
+    
+
 
 
 def avg_fps_counter(window_size):

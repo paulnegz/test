@@ -63,14 +63,14 @@ def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
     distance = getEuclideanDistance(x1,x2,y1,y2)
     A, B, C = coff #Ax^2+Bx+C
     z_cordinates = A*distance**2 + B*distance + C
-    # return z_cordinates
-    return distance
+    # return int(z_cordinates)
+    return int(distance)
 
 def getX_Cordinate(leftHipCordinates, rightHipCordinates):
     (x1, _) = leftHipCordinates
     (x2, _) = rightHipCordinates
     x_cordinates = (x1+x2)/2 
-    return x_cordinates
+    return int(x_cordinates)
 
 def shadow_text(dwg, x, y, text, font_size=16):
     dwg.add(dwg.text(text, insert=(x + 1, y + 1), fill='black',

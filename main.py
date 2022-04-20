@@ -60,7 +60,6 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     box_x, box_y, box_w, box_h = inference_box
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}
-
     landamrks = ['LEFT_SHOULDER', 'RIGHT_SHOULDER', 'LEFT_HIP', 'RIGHT_HIP', 'LEFT_WRIST', 'RIGHT_WRIST']
     
     for label, keypoint in pose.keypoints.items():

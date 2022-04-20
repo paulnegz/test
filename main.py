@@ -106,7 +106,7 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     if not(landmarks[0] in landmarks_dictionary and landmarks[1] in landmarks_dictionary): return
     z_position = getZ_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])
     x_position = getX_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])   
-    # print(f"user z position: {z_position} and user x posoition: {x_position}")    
+    print(f"user z position: {z_position} and user x posoition: {x_position}")    
 
     if (landmarks[2] in landmarks_dictionary and landmarks[4] in landmarks_dictionary):
         (left_wrist_x, left_wrist_y) = landmarks_dictionary[landmarks[2]]

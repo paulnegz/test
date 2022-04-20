@@ -1,116 +1,181 @@
-# pip install mediapipe opencv-python
-import cv2
-import mediapipe as mp
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import argparse
+import collections
+from functools import partial
+import re
 import time
-# import mySerial
+from turtle import pos
 
-# The x axis controls the steering and the z axis controls distance between the travelBot and the person
-# x axis ranges from 0 to 1. 0 is right facing travelBot, travelBot should steer left. 1 is left facing the bot, bot should steer right.(normalize values to range(-1,1))
-# z axis ranges from -2 to 0. -2 is the closest distance to the bot and 0 is far away.
-# bot should keep a distance of -0.5 with some allowance on z axis(value has not been normalized) 
-# tracking average of right hip and left hip
+import numpy as np
+from PIL import Image
+import svgwrite
+import gstreamer
 
-mp_draw=mp.solutions.drawing_utils
-mp_holistic=mp.solutions.holistic
-tipIds=[3,8,12,16,20]
+from pose_engine import PoseEngine
+from pose_engine import KeypointType
 
-video=cv2.VideoCapture(0)
-
-with mp_holistic.Holistic(min_detection_confidence=0.4, min_tracking_confidence=0.4, model_complexity=1 ) as holistic:
-    while video.isOpened():
-        ret,image=video.read()
-        image=cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image.flags.writeable=False
-        results=holistic.process(image)
-        image.flags.writeable=True
-        image=cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        hand_lmList=[]
-
-        if results.right_hand_landmarks:    
-            hand="right"      
-            myHands=results.right_hand_landmarks
-            for hand_id, hand_lm in enumerate(myHands.landmark):
-                h,w,c=image.shape
-                cx,cy= int(hand_lm.x*w), int(hand_lm.y*h)
-                hand_lmList.append([hand_id,cx,cy])
-            mp_draw.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
-        elif results.left_hand_landmarks: 
-            hand="left"         
-            myHands=results.left_hand_landmarks
-            for hand_id, hand_lm in enumerate(myHands.landmark):
-                h,w,c=image.shape
-                cx,cy= int(hand_lm.x*w), int(hand_lm.y*h)
-                hand_lmList.append([hand_id,cx,cy])
-            mp_draw.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
-        else :
-            hand=""
-
-        fingers=[]
-        if len(hand_lmList)!=0:
-            if hand_lmList[tipIds[0]][1] > hand_lmList[tipIds[0]-1][1]:
-                fingers.append(1)
-            else:
-                fingers.append(0)
-            for hand_id in range(1,5):
-                if hand_lmList[tipIds[hand_id]][2] < hand_lmList[tipIds[hand_id]-2][2]:
-                    fingers.append(1)
-                else:
-                    fingers.append(0)
-            total=fingers.count(1)
-
-            try: 
-                pose_landmarks = results.pose_landmarks.landmark
-                LEFT_ELBOW=pose_landmarks[mp_holistic.PoseLandmark.LEFT_ELBOW.value]
-                LEFT_WRIST=pose_landmarks[mp_holistic.PoseLandmark.LEFT_WRIST.value]
-
-                RIGHT_ELBOW=pose_landmarks[mp_holistic.PoseLandmark.RIGHT_ELBOW.value]
-                RIGHT_WRIST=pose_landmarks[mp_holistic.PoseLandmark.RIGHT_WRIST.value]
+EDGES = (
+    (KeypointType.NOSE, KeypointType.LEFT_EYE),
+    (KeypointType.NOSE, KeypointType.RIGHT_EYE),
+    (KeypointType.NOSE, KeypointType.LEFT_EAR),
+    (KeypointType.NOSE, KeypointType.RIGHT_EAR),
+    (KeypointType.LEFT_EAR, KeypointType.LEFT_EYE),
+    (KeypointType.RIGHT_EAR, KeypointType.RIGHT_EYE),
+    (KeypointType.LEFT_EYE, KeypointType.RIGHT_EYE),
+    (KeypointType.LEFT_SHOULDER, KeypointType.RIGHT_SHOULDER),
+    (KeypointType.LEFT_SHOULDER, KeypointType.LEFT_ELBOW),
+    (KeypointType.LEFT_SHOULDER, KeypointType.LEFT_HIP),
+    (KeypointType.RIGHT_SHOULDER, KeypointType.RIGHT_ELBOW),
+    (KeypointType.RIGHT_SHOULDER, KeypointType.RIGHT_HIP),
+    (KeypointType.LEFT_ELBOW, KeypointType.LEFT_WRIST),
+    (KeypointType.RIGHT_ELBOW, KeypointType.RIGHT_WRIST),
+    (KeypointType.LEFT_HIP, KeypointType.RIGHT_HIP),
+    (KeypointType.LEFT_HIP, KeypointType.LEFT_KNEE),
+    (KeypointType.RIGHT_HIP, KeypointType.RIGHT_KNEE),
+    (KeypointType.LEFT_KNEE, KeypointType.LEFT_ANKLE),
+    (KeypointType.RIGHT_KNEE, KeypointType.RIGHT_ANKLE),
+)
 
 
-                # print(f"RIGHT_WRIST.x: {RIGHT_WRIST.x}")
-                print(f"RIGHT_WRIST.z: {RIGHT_WRIST.z}")
-                if ( (RIGHT_WRIST.y<=RIGHT_ELBOW.y and hand=="right") or (LEFT_WRIST.y<=LEFT_ELBOW.y and hand=="left") ) :
-                    isHandUp = True
-                else :
-                    isHandUp = False
-            except:
-                isHandUp = False
-                pass 
-            mp_draw.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
-  
-            #if (isHandUp) : 
-                # print(total)  send over UART to UNO
-                # if  (total==0 or total==1) : 
-                #   mySerial.send("mov")
-                #   time.sleep(1.5)
-                # elif (total==2 or total==3) :
-                #   mySerial.send("pic")
-                #   time.sleep(6.5)
-                # elif (total==4 or total==5) :
-                #   mySerial.send("stp")
-                #   time.sleep(1.5)
+def shadow_text(dwg, x, y, text, font_size=16):
+    dwg.add(dwg.text(text, insert=(x + 1, y + 1), fill='black',
+                     font_size=font_size, style='font-family:sans-serif'))
+    dwg.add(dwg.text(text, insert=(x, y), fill='white',
+                     font_size=font_size, style='font-family:sans-serif'))
 
-            if  (total==0 or total==1) and isHandUp:
-                cv2.rectangle(image, (20, 300), (500, 420), (0, 255, 0), cv2.FILLED)
-                cv2.putText(image, "START", (45, 375), cv2.FONT_HERSHEY_SIMPLEX,
-                    2, (255, 0, 0), 5)
-                cv2.putText(image, "MOVING", (250, 375), cv2.FONT_HERSHEY_SIMPLEX,
-                    2, (255, 0, 0), 5)
-            elif (total==2 or total==3) and isHandUp:
-                cv2.rectangle(image, (20, 300), (500, 420), (0, 255, 0), cv2.FILLED)
-                cv2.putText(image, "TAKE", (45, 375), cv2.FONT_HERSHEY_SIMPLEX,
-                    2, (255, 0, 0), 5)
-                cv2.putText(image, "PICTURE", (220, 375), cv2.FONT_HERSHEY_SIMPLEX,
-                    2, (255, 0, 0), 5)
-            elif (total==5 or total==4) and isHandUp:
-                cv2.rectangle(image, (20, 300), (500, 420), (0, 255, 0), cv2.FILLED)
-                cv2.putText(image, "STOP", (45, 375), cv2.FONT_HERSHEY_SIMPLEX,
-                    2, (255, 0, 0), 5)
-                cv2.putText(image, "MOVING", (220, 375), cv2.FONT_HERSHEY_SIMPLEX,
-                    2, (255, 0, 0), 5)
-        cv2.imshow("Frame",image)
-        k=cv2.waitKey(1)
-        if k==ord('q'):
-            break
-video.release()
-cv2.destroyAllWindows()
+
+def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2):
+    box_x, box_y, box_w, box_h = inference_box
+    scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
+    xys = {}
+    
+    left_shoulder = pose.keypoints.get('left shoulder') or -1
+    right_shoulder = pose.keypoints.get('right shoulder') or -1
+    left_wrist = pose.keypoints.get('left wrist') or -1
+    right_wrist = pose.keypoints.get('right wrist') or -1
+    left_hip = pose.keypoints.get('left hip') or -1
+    right_hip = pose.keypoints.get('right hip') or -1
+    bodyparts = [left_shoulder, right_shoulder, left_wrist, right_wrist, left_hip, right_hip]
+
+    for index, bodypart in enumerate(bodyparts): 
+        if bodypart != -1: print(f"{index} : {bodypart}")
+    
+    for label, keypoint in pose.keypoints.items():
+        if keypoint.score < threshold: continue
+        # print('  %-20s x=%-4d y=%-4d score=%.1f' %
+        #     (label.name, keypoint.point[0], keypoint.point[1], keypoint.score))
+        # Offset and scale to source coordinate space.
+        kp_x = int((keypoint.point[0] - box_x) * scale_x)
+        kp_y = int((keypoint.point[1] - box_y) * scale_y)
+
+        xys[label] = (kp_x, kp_y)
+        dwg.add(dwg.circle(center=(int(kp_x), int(kp_y)), r=5,
+                           fill='cyan', fill_opacity=keypoint.score, stroke=color))
+
+    for a, b in EDGES:
+        if a not in xys or b not in xys: continue
+        ax, ay = xys[a]
+        bx, by = xys[b]
+        dwg.add(dwg.line(start=(ax, ay), end=(bx, by), stroke=color, stroke_width=2))
+
+
+def avg_fps_counter(window_size):
+    window = collections.deque(maxlen=window_size)
+    prev = time.monotonic()
+    yield 0.0  # First fps value.
+
+    while True:
+        curr = time.monotonic()
+        window.append(curr - prev)
+        prev = curr
+        yield len(window) / sum(window)
+
+
+def run(inf_callback, render_callback):
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--mirror', help='flip video horizontally', action='store_true')
+    parser.add_argument('--model', help='.tflite model path.', required=False)
+    parser.add_argument('--res', help='Resolution', default='640x480',
+                        choices=['480x360', '640x480', '1280x720'])
+    parser.add_argument('--videosrc', help='Which video source to use', default='/dev/video0')
+    parser.add_argument('--h264', help='Use video/x-h264 input', action='store_true')
+    parser.add_argument('--jpeg', help='Use image/jpeg input', action='store_true')
+    args = parser.parse_args()
+
+    default_model = 'models/mobilenet/posenet_mobilenet_v1_075_%d_%d_quant_decoder_edgetpu.tflite'
+    if args.res == '480x360':
+        src_size = (640, 480)
+        appsink_size = (480, 360)
+        model = args.model or default_model % (353, 481)
+    elif args.res == '640x480':
+        src_size = (640, 480)
+        appsink_size = (640, 480)
+        model = args.model or default_model % (481, 641)
+    elif args.res == '1280x720':
+        src_size = (1280, 720)
+        appsink_size = (1280, 720)
+        model = args.model or default_model % (721, 1281)
+
+    print('Loading model: ', model)
+    engine = PoseEngine(model)
+    input_shape = engine.get_input_tensor_shape()
+    inference_size = (input_shape[2], input_shape[1])
+
+    gstreamer.run_pipeline(partial(inf_callback, engine), partial(render_callback, engine),
+                           src_size, inference_size,
+                           mirror=args.mirror,
+                           videosrc=args.videosrc,
+                           h264=args.h264,
+                           jpeg=args.jpeg
+                           )
+
+
+def main():
+    n = 0
+    sum_process_time = 0
+    sum_inference_time = 0
+    ctr = 0
+    fps_counter = avg_fps_counter(30)
+
+    def run_inference(engine, input_tensor):
+        return engine.run_inference(input_tensor)
+
+    def render_overlay(engine, output, src_size, inference_box):
+        nonlocal n, sum_process_time, sum_inference_time, fps_counter
+
+        svg_canvas = svgwrite.Drawing('', size=src_size)
+        start_time = time.monotonic()
+        outputs, inference_time = engine.ParseOutput()
+        end_time = time.monotonic()
+        n += 1
+        sum_process_time += 1000 * (end_time - start_time)
+        sum_inference_time += inference_time * 1000
+
+        avg_inference_time = sum_inference_time / n
+        text_line = 'PoseNet: %.1fms (%.2f fps) TrueFPS: %.2f Nposes %d' % (
+            avg_inference_time, 1000 / avg_inference_time, next(fps_counter), len(outputs)
+        )
+
+        shadow_text(svg_canvas, 10, 20, text_line)
+        for pose in outputs:
+            draw_pose(svg_canvas, pose, src_size, inference_box)
+        return (svg_canvas.tostring(), False)
+
+    run(run_inference, render_overlay)
+
+
+if __name__ == '__main__':
+    main()

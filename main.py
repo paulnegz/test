@@ -14,13 +14,9 @@
 
 import argparse
 import collections
-from dis import dis
 from functools import partial
 import re
 import time
-import math
-from turtle import distance
-import mySerial
 
 import numpy as np
 from PIL import Image
@@ -52,28 +48,6 @@ EDGES = (
     (KeypointType.RIGHT_KNEE, KeypointType.RIGHT_ANKLE),
 )
 
-length = [140, 125, 100, 93, 86, 72, 67, 60, 53, 50, 47, 44, 41, 39, 37, 36, 33] #distance of palm->hips
-z = [24, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105] #depth
-coff = np.polyfit(length, z, 2)
-
-def getEuclideanDistance(x1,x2,y1,y2):
-    return math.sqrt((y2-y1)**2+(x2-x1)**2)
-
-def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
-    (x1, y1) = leftHipCordinates
-    (x2, y2) = rightHipCordinates
-    distance = getEuclideanDistance(x1,x2,y1,y2)
-    A, B, C = coff #Ax^2+Bx+C
-    z_cordinates = A*distance**2 + B*distance + C
-    z_cordinates = math.ceil(z_cordinates*100)/100
-    return z_cordinates
-
-def getX_Cordinate(leftHipCordinates, rightHipCordinates):
-    (x1, _) = leftHipCordinates
-    (x2, _) = rightHipCordinates
-    x_cordinates = (x1+x2)/(2*640) 
-    x_cordinates = math.ceil(x_cordinates*100)/100
-    return x_cordinates
 
 def shadow_text(dwg, x, y, text, font_size=16):
     dwg.add(dwg.text(text, insert=(x + 1, y + 1), fill='black',
@@ -86,18 +60,12 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
     box_x, box_y, box_w, box_h = inference_box
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}
-    landmarks = ['LEFT_HIP', 'RIGHT_HIP', 'LEFT_WRIST', 'RIGHT_WRIST', 'LEFT_SHOULDER', 'RIGHT_SHOULDER']
-    landmarks_dictionary = {}
-
     for label, keypoint in pose.keypoints.items():
         if keypoint.score < threshold: continue
-        if label.name in landmarks: 
-            # print('  %-20s x=%-4d y=%-4d score=%.1f' %(label.name, keypoint.point[0], keypoint.point[1], keypoint.score))
-            landmarks_dictionary.update({label.name: (keypoint.point[0],keypoint.point[1])})
-            
         # Offset and scale to source coordinate space.
         kp_x = int((keypoint.point[0] - box_x) * scale_x)
         kp_y = int((keypoint.point[1] - box_y) * scale_y)
+
         xys[label] = (kp_x, kp_y)
         dwg.add(dwg.circle(center=(int(kp_x), int(kp_y)), r=5,
                            fill='cyan', fill_opacity=keypoint.score, stroke=color))
@@ -108,27 +76,6 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
         bx, by = xys[b]
         dwg.add(dwg.line(start=(ax, ay), end=(bx, by), stroke=color, stroke_width=2))
 
-        
-    if not(landmarks[0] in landmarks_dictionary and landmarks[1] in landmarks_dictionary): 
-        payload = f"x:{-1}; z:{-1}\n"
-        print(payload)
-        mySerial.send(payload)          
-        return
-    z_position = getZ_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])
-    x_position = getX_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])   
-    payload = f"x:{x_position}; z:{z_position}\n"
-    print(payload)
-    mySerial.send(payload)    
-
-    if (landmarks[2] in landmarks_dictionary and landmarks[4] in landmarks_dictionary):
-        (_, left_wrist_y) = landmarks_dictionary[landmarks[2]]
-        (_, left_shoulder_y) = landmarks_dictionary[landmarks[4]]
-        if left_wrist_y < left_shoulder_y + 10: print(f"toggle\n") 
-
-    elif (landmarks[3] in landmarks_dictionary and landmarks[5] in landmarks_dictionary):
-        (_, right_wrist_y) = landmarks_dictionary[landmarks[3]]
-        (_, right_shoulder_y) = landmarks_dictionary[landmarks[5]]
-        if right_wrist_y < right_shoulder_y+ 10: print(f"toggle\n")
 
 def avg_fps_counter(window_size):
     window = collections.deque(maxlen=window_size)
@@ -156,15 +103,15 @@ def run(inf_callback, render_callback):
     default_model = 'models/mobilenet/posenet_mobilenet_v1_075_%d_%d_quant_decoder_edgetpu.tflite'
     if args.res == '480x360':
         src_size = (640, 480)
-        _ = (480, 360)
+        appsink_size = (480, 360)
         model = args.model or default_model % (353, 481)
     elif args.res == '640x480':
         src_size = (640, 480)
-        _ = (640, 480)
+        appsink_size = (640, 480)
         model = args.model or default_model % (481, 641)
     elif args.res == '1280x720':
         src_size = (1280, 720)
-        _ = (1280, 720)
+        appsink_size = (1280, 720)
         model = args.model or default_model % (721, 1281)
 
     print('Loading model: ', model)

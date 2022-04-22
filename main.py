@@ -63,7 +63,7 @@ def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
     distance = getEuclideanDistance(x1,x2,y1,y2)
     A, B, C = coff #Ax^2+Bx+C
     z_cordinates = A*distance**2 + B*distance + C
-    z_cordinates = math.ceil(z_cordinates*100)/100
+    z_cordinates = math.ceil(z_cordinates*100)/10000
     return z_cordinates
 
 def getX_Cordinate(leftHipCordinates, rightHipCordinates):
@@ -80,7 +80,7 @@ def shadow_text(dwg, x, y, text, font_size=16):
                      font_size=font_size, style='font-family:sans-serif'))
 
 
-def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2):
+def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.333):
     box_x, box_y, box_w, box_h = inference_box
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}

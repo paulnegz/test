@@ -109,7 +109,11 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.2)
         dwg.add(dwg.line(start=(ax, ay), end=(bx, by), stroke=color, stroke_width=2))
 
         
-    if not(landmarks[0] in landmarks_dictionary and landmarks[1] in landmarks_dictionary): return
+    if not(landmarks[0] in landmarks_dictionary and landmarks[1] in landmarks_dictionary): 
+        payload = f"x:{-1}; z:{-1}\n"
+        print(payload)
+        mySerial.send(payload)          
+        return
     z_position = getZ_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])
     x_position = getX_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])   
     payload = f"x:{x_position}; z:{z_position}\n"
@@ -152,15 +156,15 @@ def run(inf_callback, render_callback):
     default_model = 'models/mobilenet/posenet_mobilenet_v1_075_%d_%d_quant_decoder_edgetpu.tflite'
     if args.res == '480x360':
         src_size = (640, 480)
-        appsink_size = (480, 360)
+        _ = (480, 360)
         model = args.model or default_model % (353, 481)
     elif args.res == '640x480':
         src_size = (640, 480)
-        appsink_size = (640, 480)
+        _ = (640, 480)
         model = args.model or default_model % (481, 641)
     elif args.res == '1280x720':
         src_size = (1280, 720)
-        appsink_size = (1280, 720)
+        _ = (1280, 720)
         model = args.model or default_model % (721, 1281)
 
     print('Loading model: ', model)

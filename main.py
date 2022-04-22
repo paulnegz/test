@@ -17,11 +17,13 @@ import collections
 from functools import partial
 import re
 import time
+import math
 
 import numpy as np
 from PIL import Image
 import svgwrite
 import gstreamer
+import mySerial
 
 from pose_engine import PoseEngine
 from pose_engine import KeypointType
@@ -48,6 +50,28 @@ EDGES = (
     (KeypointType.RIGHT_KNEE, KeypointType.RIGHT_ANKLE),
 )
 
+length = [140, 125, 100, 93, 86, 72, 67, 60, 53, 50, 47, 44, 41, 39, 37, 36, 33] #distance of palm->hips
+z = [24, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105] #depth
+coff = np.polyfit(length, z, 2)
+
+def getEuclideanDistance(x1,x2,y1,y2):
+    return math.sqrt((y2-y1)**2+(x2-x1)**2)
+
+def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
+    (x1, y1) = leftHipCordinates
+    (x2, y2) = rightHipCordinates
+    distance = getEuclideanDistance(x1,x2,y1,y2)
+    A, B, C = coff #Ax^2+Bx+C
+    z_cordinates = A*distance**2 + B*distance + C
+    z_cordinates = math.ceil(z_cordinates*100)/100
+    return z_cordinates
+
+def getX_Cordinate(leftHipCordinates, rightHipCordinates):
+    (x1, _) = leftHipCordinates
+    (x2, _) = rightHipCordinates
+    x_cordinates = (x1+x2)/(2*640) 
+    x_cordinates = math.ceil(x_cordinates*100)/100
+    return x_cordinates
 
 def shadow_text(dwg, x, y, text, font_size=16):
     dwg.add(dwg.text(text, insert=(x + 1, y + 1), fill='black',

@@ -14,10 +14,12 @@
 
 import argparse
 import collections
+from dis import dis
 from functools import partial
 import re
 import time
 import math
+from turtle import distance
 import mySerial
 
 import numpy as np
@@ -55,7 +57,7 @@ z = [24, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105] #dept
 coff = np.polyfit(length, z, 2)
 
 def getEuclideanDistance(x1,x2,y1,y2):
-    return int(math.sqrt((y2-y1)**2+(x2-x1)**2))
+    return math.sqrt((y2-y1)**2+(x2-x1)**2)
 
 def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
     (x1, y1) = leftHipCordinates
@@ -63,13 +65,15 @@ def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
     distance = getEuclideanDistance(x1,x2,y1,y2)
     A, B, C = coff #Ax^2+Bx+C
     z_cordinates = A*distance**2 + B*distance + C
-    return int(z_cordinates)
+    z_cordinates = math.ceil(z_cordinates*100)/100
+    return z_cordinates
 
 def getX_Cordinate(leftHipCordinates, rightHipCordinates):
     (x1, _) = leftHipCordinates
     (x2, _) = rightHipCordinates
-    x_cordinates = (x1+x2)/2 
-    return int(x_cordinates)
+    x_cordinates = (x1+x2)/(2*640) 
+    x_cordinates = math.ceil(x_cordinates*100)/100
+    return x_cordinates
 
 def shadow_text(dwg, x, y, text, font_size=16):
     dwg.add(dwg.text(text, insert=(x + 1, y + 1), fill='black',

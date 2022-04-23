@@ -7,13 +7,9 @@ After=weston.target
 [Service]
 Type=simple
 
-User=mendel
-WorkingDirectory=/home/mendel
-Environment=DISPLAY=:0
-
 ExecStart=/usr/bin/python3 /home/mendel/travelBot/project-posenet/main.py --res 1280x720
 # Give the script some time to startup
-TimeoutSec=400
+TimeoutSec=350
 
 [Install]
 WantedBy=multi-user.target

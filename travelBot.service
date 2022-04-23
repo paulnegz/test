@@ -6,7 +6,7 @@ After=network.target
 [Service]
 Type=simple
 
-ExecStart=/usr/bin/python3 /home/mendel/travelBot/project-posenet/main.py
+ExecStart=/usr/bin/python3 /home/mendel/travelBot/project-posenet/main.py --res 1280x720
 
 # Give the script some time to startup
 TimeoutSec=400

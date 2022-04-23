@@ -11,7 +11,5 @@ ExecStart=/usr/bin/python3 /home/mendel/travelBot/project-posenet/main.py --res 
 # Give the script some time to startup
 TimeoutSec=400
 
-User=mendel
-
 [Install]
 WantedBy=multi-user.target

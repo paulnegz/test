@@ -107,13 +107,13 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.33
         dwg.add(dwg.line(start=(ax, ay), end=(bx, by), stroke=color, stroke_width=2))
 
     if not(landmarks[0] in landmarks_dictionary and landmarks[1] in landmarks_dictionary): 
-        payload = f"x:{-1}; z:{-1}"
+        payload = f"XY_location; x:{-1}; z:{-1}"
         print(payload)
         mySerial.send(payload)          
         return
     z_position = getZ_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])
     x_position = getX_Cordinate(landmarks_dictionary[landmarks[0]],landmarks_dictionary[landmarks[1]])   
-    payload = f"x:{x_position}; z:{z_position}"
+    payload = f"XY_location; x:{x_position}; z:{z_position}"
     print(payload)
     mySerial.send(payload)    
 

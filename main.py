@@ -87,6 +87,8 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.33
     landmarks = ['LEFT_HIP', 'RIGHT_HIP', 'LEFT_WRIST', 'RIGHT_WRIST', 'LEFT_SHOULDER', 'RIGHT_SHOULDER']
     landmarks_dictionary = {}
 
+    if not pose.keypoints.items(): mySerial.send(f"XZ_location; {-1}:{-1}\n")
+
     for label, keypoint in pose.keypoints.items():
         if keypoint.score < threshold: continue
         if label.name in landmarks: 

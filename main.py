@@ -69,7 +69,7 @@ def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
 def getX_Cordinate(leftHipCordinates, rightHipCordinates):
     (x1, _) = leftHipCordinates
     (x2, _) = rightHipCordinates
-    x_cordinates = (x1+x2)/(2*640) 
+    x_cordinates = (x1+x2)/(2*480) 
     x_cordinates = math.ceil(x_cordinates*1000)/1000
     return x_cordinates
 

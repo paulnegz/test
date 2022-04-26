@@ -209,8 +209,8 @@ def main():
         if not outputs: mySerial.send(f"XZ_location; {-1}:{-1}\n")
         if not outputs: print(f"XZ_location; {-1}:{-1}\n")
 
-        for pose in outputs:
-            draw_pose(svg_canvas, pose, src_size, inference_box)
+        # for pose in outputs:
+        draw_pose(svg_canvas, outputs[0], src_size, inference_box)
         return (svg_canvas.tostring(), False)
 
     run(run_inference, render_overlay)

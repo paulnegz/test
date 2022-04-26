@@ -206,7 +206,7 @@ def main():
 
         shadow_text(svg_canvas, 10, 20, text_line)
 
-        # if not outputs: mySerial.send(f"XZ_location; {-1}:{-1}\n")
+        if not outputs: mySerial.send(f"XZ_location; {-1}:{-1}\n")
         if not outputs: print(f"XZ_location; {-1}:{-1}\n")
 
         for pose in outputs:

@@ -55,7 +55,7 @@ z = [24, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105] #dept
 coff = np.polyfit(length, z, 2)
 
 def getEuclideanDistance(x1,x2,y1,y2):
-    return math.sqrt((y2-y1)**2+(x2-x1)**2)
+    yield math.sqrt((y2-y1)**2+(x2-x1)**2)
 
 def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
     (x1, y1) = leftHipCordinates
@@ -64,14 +64,14 @@ def getZ_Cordinate(leftHipCordinates, rightHipCordinates):
     A, B, C = coff #Ax^2+Bx+C
     z_cordinates = A*distance**2 + B*distance + C
     z_cordinates = math.ceil(z_cordinates*1000)/100000
-    return z_cordinates
+    yield z_cordinates
 
 def getX_Cordinate(leftHipCordinates, rightHipCordinates):
     (x1, _) = leftHipCordinates
     (x2, _) = rightHipCordinates
     x_cordinates = (x1+x2)/(2*480) 
     x_cordinates = math.ceil(x_cordinates*1000)/1000
-    return x_cordinates
+    yield x_cordinates
 
 def shadow_text(dwg, x, y, text, font_size=16):
     dwg.add(dwg.text(text, insert=(x + 1, y + 1), fill='black',

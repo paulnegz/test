@@ -87,9 +87,6 @@ def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.4)
     landmarks = ['LEFT_HIP', 'RIGHT_HIP', 'LEFT_WRIST', 'RIGHT_WRIST', 'LEFT_SHOULDER', 'RIGHT_SHOULDER']
     landmarks_dictionary = {}
 
-    # if not pose.keypoints.items(): mySerial.send(f"XZ_location; {-1}:{-1}\n")
-    if not pose.keypoints.items():print(f"XZ_location; {-1}:{-1}\n")
-
     for label, keypoint in pose.keypoints.items():
         if keypoint.score < threshold: continue
         if label.name in landmarks: 
@@ -210,6 +207,7 @@ def main():
         shadow_text(svg_canvas, 10, 20, text_line)
 
         # if not outputs: mySerial.send(f"XZ_location; {-1}:{-1}\n")
+        if not outputs: print(f"XZ_location; {-1}:{-1}\n")
 
         for pose in outputs:
             draw_pose(svg_canvas, pose, src_size, inference_box)

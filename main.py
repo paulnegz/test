@@ -80,14 +80,15 @@ def shadow_text(dwg, x, y, text, font_size=16):
                      font_size=font_size, style='font-family:sans-serif'))
 
 
-def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.333):
+def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.4):
     box_x, box_y, box_w, box_h = inference_box
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}
     landmarks = ['LEFT_HIP', 'RIGHT_HIP', 'LEFT_WRIST', 'RIGHT_WRIST', 'LEFT_SHOULDER', 'RIGHT_SHOULDER']
     landmarks_dictionary = {}
 
-    if not pose.keypoints.items(): mySerial.send(f"XZ_location; {-1}:{-1}\n")
+    # if not pose.keypoints.items(): mySerial.send(f"XZ_location; {-1}:{-1}\n")
+    if not pose.keypoints.items():print(f"XZ_location; {-1}:{-1}\n")
 
     for label, keypoint in pose.keypoints.items():
         if keypoint.score < threshold: continue
@@ -207,6 +208,9 @@ def main():
         )
 
         shadow_text(svg_canvas, 10, 20, text_line)
+
+        # if not outputs: mySerial.send(f"XZ_location; {-1}:{-1}\n")
+
         for pose in outputs:
             draw_pose(svg_canvas, pose, src_size, inference_box)
         return (svg_canvas.tostring(), False)

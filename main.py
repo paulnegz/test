@@ -80,7 +80,7 @@ def shadow_text(dwg, x, y, text, font_size=16):
                      font_size=font_size, style='font-family:sans-serif'))
 
 
-def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.4):
+def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.433):
     box_x, box_y, box_w, box_h = inference_box
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}
@@ -143,7 +143,7 @@ def run(inf_callback, render_callback):
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--mirror', help='flip video horizontally', action='store_true')
     parser.add_argument('--model', help='.tflite model path.', required=False)
-    parser.add_argument('--res', help='Resolution', default='640x480',
+    parser.add_argument('--res', help='Resolution', default='480x360',
                         choices=['480x360', '640x480', '1280x720'])
     parser.add_argument('--videosrc', help='Which video source to use', default='/dev/video0')
     parser.add_argument('--h264', help='Use video/x-h264 input', action='store_true')

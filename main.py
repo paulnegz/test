@@ -208,7 +208,6 @@ def main():
 
         # if not outputs: mySerial.send(f"XZ_location; {-1}:{-1}\n")
         if not outputs: print(f"XZ_location; {-1}:{-1}\n")
-        else: print(outputs)
 
         for pose in outputs:
             draw_pose(svg_canvas, pose, src_size, inference_box)

@@ -184,12 +184,14 @@ def main():
     sum_inference_time = 0
     ctr = 0
     fps_counter = avg_fps_counter(30)
+    pose_start_time = 0
+    pose_end_time = 0
 
     def run_inference(engine, input_tensor):
         return engine.run_inference(input_tensor)
 
     def render_overlay(engine, output, src_size, inference_box):
-        nonlocal n, sum_process_time, sum_inference_time, fps_counter
+        nonlocal n, sum_process_time, sum_inference_time, fps_counter, pose_start_time, pose_end_time
 
         svg_canvas = svgwrite.Drawing('', size=src_size)
         start_time = time.monotonic()

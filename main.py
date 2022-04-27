@@ -80,7 +80,7 @@ def shadow_text(dwg, x, y, text, font_size=16):
                      font_size=font_size, style='font-family:sans-serif'))
 
 
-def draw_pose(dwg, pose, src_size, inference_box, color='yellow', threshold=0.433):
+def draw_pose(dwg, pose, src_size, inference_box, color='red', threshold=0.45):
     box_x, box_y, box_w, box_h = inference_box
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}
@@ -206,12 +206,16 @@ def main():
 
         shadow_text(svg_canvas, 10, 20, text_line)
 
-        if not outputs: mySerial.send(f"XZ_location; {-1}:{-1}\n")
-        if not outputs: print(f"XZ_location; {-1}:{-1}\n")
-
-        # for pose in outputs:
-        if outputs:
+        if (outputs): 
+            pose_start_time = time.monotonic()
             draw_pose(svg_canvas, outputs[0], src_size, inference_box)
+        else: 
+            pose_end_time = time.monotonic()
+            # if (pose_end_time-pose_start_time>2.2) : print(f"XZ_location; {-1}:{-1}\n")  
+        
+        print(f"time since last pose: {pose_end_time-pose_start_time}")
+
+
         return (svg_canvas.tostring(), False)
 
     run(run_inference, render_overlay)

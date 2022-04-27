@@ -213,10 +213,9 @@ def main():
             draw_pose(svg_canvas, outputs[0], src_size, inference_box)
         else: 
             pose_end_time = time.monotonic()
-            # if (pose_end_time-pose_start_time>2.2) : print(f"XZ_location; {-1}:{-1}\n")  
+            if (pose_end_time-pose_start_time>2.2) : mySerial.send(f"XZ_location; {-1}:{-1}\n") 
+            if (pose_end_time-pose_start_time>2.2) : print(f"XZ_location; {-1}:{-1}\n")  
         
-        print(f"time since last pose: {pose_end_time-pose_start_time}")
-
 
         return (svg_canvas.tostring(), False)
 

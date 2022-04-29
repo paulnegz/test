@@ -80,7 +80,7 @@ def shadow_text(dwg, x, y, text, font_size=16):
                      font_size=font_size, style='font-family:sans-serif'))
 
 
-def draw_pose(dwg, pose, src_size, inference_box, color='red', threshold=0.49):
+def draw_pose(dwg, pose, src_size, inference_box, color='red', threshold=0.59):
     box_x, box_y, box_w, box_h = inference_box
     scale_x, scale_y = src_size[0] / box_w, src_size[1] / box_h
     xys = {}
@@ -107,7 +107,7 @@ def draw_pose(dwg, pose, src_size, inference_box, color='red', threshold=0.49):
         dwg.add(dwg.line(start=(ax, ay), end=(bx, by), stroke=color, stroke_width=2))
 
     if not(landmarks[0] in landmarks_dictionary and landmarks[1] in landmarks_dictionary): 
-        payload = f"XZ_location; {0.5}:{.2}\n"
+        payload = f"XZ_location; {-1}:{-1}\n"
         print(payload)
         mySerial.send(payload)          
         return
@@ -117,15 +117,15 @@ def draw_pose(dwg, pose, src_size, inference_box, color='red', threshold=0.49):
     print(payload)
     mySerial.send(payload)    
 
-    if (landmarks[2] in landmarks_dictionary and landmarks[4] in landmarks_dictionary):
-        (_, left_wrist_y) = landmarks_dictionary[landmarks[2]]
-        (_, left_shoulder_y) = landmarks_dictionary[landmarks[4]]
-        if left_wrist_y < left_shoulder_y + 10: print(f"toggle\n") 
+    # if (landmarks[2] in landmarks_dictionary and landmarks[4] in landmarks_dictionary):
+    #     (_, left_wrist_y) = landmarks_dictionary[landmarks[2]]
+    #     (_, left_shoulder_y) = landmarks_dictionary[landmarks[4]]
+    #     if left_wrist_y < left_shoulder_y + 10: print(f"toggle\n") 
 
-    elif (landmarks[3] in landmarks_dictionary and landmarks[5] in landmarks_dictionary):
-        (_, right_wrist_y) = landmarks_dictionary[landmarks[3]]
-        (_, right_shoulder_y) = landmarks_dictionary[landmarks[5]]
-        if right_wrist_y < right_shoulder_y+ 10: print(f"toggle\n")
+    # elif (landmarks[3] in landmarks_dictionary and landmarks[5] in landmarks_dictionary):
+    #     (_, right_wrist_y) = landmarks_dictionary[landmarks[3]]
+    #     (_, right_shoulder_y) = landmarks_dictionary[landmarks[5]]
+    #     if right_wrist_y < right_shoulder_y+ 10: print(f"toggle\n")
 
 def avg_fps_counter(window_size):
     window = collections.deque(maxlen=window_size)

@@ -7,7 +7,7 @@ After=weston.target
 [Service]
 Type=simple
 
-ExecStart=/usr/bin/python3 /home/mendel/travelBot/project-posenet/main.py --res 480x360
+ExecStart=python3 /home/mendel/travelBot/project-posenet/main.py --res 480x360
 # Give the script some time to startup
 TimeoutSec=350
 
